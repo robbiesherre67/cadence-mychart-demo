@@ -1,0 +1,46 @@
+[
+  {
+    "id": "primary_care_new",
+    "name": "Primary Care - New",
+    "durationMin": 30,
+    "newPatientAllowed": true,
+    "telehealth": false,
+    "requiresOrder": false,
+    "departmentIds": [
+      "DEPT1"
+    ]
+  },
+  {
+    "id": "ortho_new",
+    "name": "Orthopedics - New",
+    "durationMin": 30,
+    "newPatientAllowed": true,
+    "telehealth": false,
+    "requiresOrder": false,
+    "departmentIds": [
+      "DEPT2"
+    ]
+  },
+  {
+    "id": "mri_knee",
+    "name": "MRI Knee",
+    "durationMin": 30,
+    "newPatientAllowed": true,
+    "telehealth": false,
+    "requiresOrder": true,
+    "departmentIds": [
+      "DEPT2"
+    ]
+  },
+  {
+    "id": "telehealth_primary",
+    "name": "Telehealth - Primary",
+    "durationMin": 20,
+    "newPatientAllowed": true,
+    "telehealth": true,
+    "requiresOrder": false,
+    "departmentIds": [
+      "VIRT"
+    ]
+  }
+]

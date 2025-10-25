@@ -1,0 +1,24 @@
+[
+  {
+    "id": "PROV1",
+    "name": "Dr. Jones",
+    "departments": [
+      "DEPT1"
+    ]
+  },
+  {
+    "id": "PROV2",
+    "name": "Dr. Kim",
+    "departments": [
+      "DEPT2",
+      "DEPT1"
+    ]
+  },
+  {
+    "id": "PROV3",
+    "name": "NP Rivera",
+    "departments": [
+      "VIRT"
+    ]
+  }
+]

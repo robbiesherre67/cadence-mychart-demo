@@ -1,0 +1,192 @@
+[
+  {
+    "id": "PROV1-DEPT1-0",
+    "providerId": "PROV1",
+    "departmentId": "DEPT1",
+    "start": "2025-10-25T09:00:00",
+    "end": "2025-10-25T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "primary_care_new",
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV2-DEPT2-0",
+    "providerId": "PROV2",
+    "departmentId": "DEPT2",
+    "start": "2025-10-25T09:00:00",
+    "end": "2025-10-25T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "ortho_new",
+      "mri_knee"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV3-VIRT-0",
+    "providerId": "PROV3",
+    "departmentId": "VIRT",
+    "start": "2025-10-25T10:00:00",
+    "end": "2025-10-25T13:00:00",
+    "slotSizeMin": 20,
+    "visitTypeIdsAllowed": [
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV1-DEPT1-1",
+    "providerId": "PROV1",
+    "departmentId": "DEPT1",
+    "start": "2025-10-26T09:00:00",
+    "end": "2025-10-26T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "primary_care_new",
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV2-DEPT2-1",
+    "providerId": "PROV2",
+    "departmentId": "DEPT2",
+    "start": "2025-10-26T09:00:00",
+    "end": "2025-10-26T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "ortho_new",
+      "mri_knee"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV3-VIRT-1",
+    "providerId": "PROV3",
+    "departmentId": "VIRT",
+    "start": "2025-10-26T10:00:00",
+    "end": "2025-10-26T13:00:00",
+    "slotSizeMin": 20,
+    "visitTypeIdsAllowed": [
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV1-DEPT1-2",
+    "providerId": "PROV1",
+    "departmentId": "DEPT1",
+    "start": "2025-10-27T09:00:00",
+    "end": "2025-10-27T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "primary_care_new",
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV2-DEPT2-2",
+    "providerId": "PROV2",
+    "departmentId": "DEPT2",
+    "start": "2025-10-27T09:00:00",
+    "end": "2025-10-27T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "ortho_new",
+      "mri_knee"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV3-VIRT-2",
+    "providerId": "PROV3",
+    "departmentId": "VIRT",
+    "start": "2025-10-27T10:00:00",
+    "end": "2025-10-27T13:00:00",
+    "slotSizeMin": 20,
+    "visitTypeIdsAllowed": [
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV1-DEPT1-3",
+    "providerId": "PROV1",
+    "departmentId": "DEPT1",
+    "start": "2025-10-28T09:00:00",
+    "end": "2025-10-28T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "primary_care_new",
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV2-DEPT2-3",
+    "providerId": "PROV2",
+    "departmentId": "DEPT2",
+    "start": "2025-10-28T09:00:00",
+    "end": "2025-10-28T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "ortho_new",
+      "mri_knee"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV3-VIRT-3",
+    "providerId": "PROV3",
+    "departmentId": "VIRT",
+    "start": "2025-10-28T10:00:00",
+    "end": "2025-10-28T13:00:00",
+    "slotSizeMin": 20,
+    "visitTypeIdsAllowed": [
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV1-DEPT1-4",
+    "providerId": "PROV1",
+    "departmentId": "DEPT1",
+    "start": "2025-10-29T09:00:00",
+    "end": "2025-10-29T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "primary_care_new",
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV2-DEPT2-4",
+    "providerId": "PROV2",
+    "departmentId": "DEPT2",
+    "start": "2025-10-29T09:00:00",
+    "end": "2025-10-29T12:00:00",
+    "slotSizeMin": 15,
+    "visitTypeIdsAllowed": [
+      "ortho_new",
+      "mri_knee"
+    ],
+    "capacity": 1
+  },
+  {
+    "id": "PROV3-VIRT-4",
+    "providerId": "PROV3",
+    "departmentId": "VIRT",
+    "start": "2025-10-29T10:00:00",
+    "end": "2025-10-29T13:00:00",
+    "slotSizeMin": 20,
+    "visitTypeIdsAllowed": [
+      "telehealth_primary"
+    ],
+    "capacity": 1
+  }
+]

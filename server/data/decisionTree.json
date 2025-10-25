@@ -1,0 +1,70 @@
+{
+  "id": "root",
+  "prompt": "What do you need help with?",
+  "field": "symptom",
+  "options": [
+    {
+      "value": "primary_care",
+      "nextNodeId": "pc-branch"
+    },
+    {
+      "value": "knee_pain",
+      "nextNodeId": "ortho-branch"
+    },
+    {
+      "value": "imaging_knee_mri",
+      "nextNodeId": "mri-branch"
+    },
+    {
+      "value": "telehealth",
+      "nextNodeId": "tele-branch"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pc-branch",
+      "terminal": {
+        "visitTypeIds": [
+          "primary_care_new"
+        ],
+        "departmentIds": [
+          "DEPT1"
+        ]
+      }
+    },
+    {
+      "id": "ortho-branch",
+      "terminal": {
+        "visitTypeIds": [
+          "ortho_new"
+        ],
+        "departmentIds": [
+          "DEPT2"
+        ]
+      }
+    },
+    {
+      "id": "mri-branch",
+      "terminal": {
+        "visitTypeIds": [
+          "mri_knee"
+        ],
+        "departmentIds": [
+          "DEPT2"
+        ],
+        "requiresQueue": false
+      }
+    },
+    {
+      "id": "tele-branch",
+      "terminal": {
+        "visitTypeIds": [
+          "telehealth_primary"
+        ],
+        "departmentIds": [
+          "VIRT"
+        ]
+      }
+    }
+  ]
+}

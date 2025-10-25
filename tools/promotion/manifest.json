@@ -1,0 +1,19 @@
+{
+  "environments": [
+    "dev",
+    "test",
+    "prod"
+  ],
+  "content": [
+    {
+      "type": "strings",
+      "path": "tools/strings/dev.en.json",
+      "dest": "tools/strings/test.en.json"
+    },
+    {
+      "type": "strings",
+      "path": "tools/strings/test.en.json",
+      "dest": "tools/strings/prod.en.json"
+    }
+  ]
+}

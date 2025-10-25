@@ -1,0 +1,26 @@
+[
+  {
+    "id": "DEPT1",
+    "name": "Primary Care - Pasadena",
+    "locationCode": "PAS",
+    "specialties": [
+      "primary"
+    ]
+  },
+  {
+    "id": "DEPT2",
+    "name": "Orthopedics - Pasadena",
+    "locationCode": "PAS",
+    "specialties": [
+      "ortho"
+    ]
+  },
+  {
+    "id": "VIRT",
+    "name": "Virtual Care",
+    "locationCode": "VIRT",
+    "specialties": [
+      "telehealth"
+    ]
+  }
+]
