@@ -1,10 +1,10 @@
 services:
   - type: web
     name: cadence-mychart-demo
-    env: node           # Node service
+    env: node
     region: oregon
     plan: free
-    rootDir: server     # runtime working directory (server/)
+    rootDir: server
     buildCommand: |
       cd ../client
       npm ci
@@ -14,6 +14,6 @@ services:
     startCommand: node src/index.js
     envVars:
       - key: NODE_VERSION
-        value: 20
+        value: "20"
       - key: TZ
         value: America/Los_Angeles
