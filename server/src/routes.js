@@ -1,49 +1,52 @@
+// routes.js
 import { Router } from 'express';
-import dayjs from 'dayjs';
-import { expandSlots, getAppointments, createAppointment, loadData } from './slotEngine.js';
-import { nanoid } from 'nanoid';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { expandSlots } from './slotEngine.js';
 
-export const router = Router();
-const { templates, visitTypes, departments } = loadData();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// In-memory request queue (Cadence-like)
-const requestQueue = new Map();
+const router = Router();
 
+function loadJson(relPath) {
+  const full = path.join(__dirname, relPath);
+  return JSON.parse(fs.readFileSync(full, 'utf-8'));
+}
+
+const templates = loadJson('../data/templates.json');
+const departments = (() => {
+  try { return loadJson('../data/departments.json'); } catch { return []; }
+})();
+const providers = (() => {
+  try { return loadJson('../data/providers.json'); } catch { return []; }
+})();
+
+// GET /api/slots?visitTypeId=...&dept=DEPT1,DEPT2&from=YYYY-MM-DD&to=YYYY-MM-DD
 router.get('/slots', (req, res) => {
   const { visitTypeId, dept, from, to } = req.query;
-  if (!visitTypeId || !dept || !from || !to) {
-    return res.status(400).json({ error: 'visitTypeId, dept, from, to required' });
+  if (!from || !to) return res.status(400).json({ error: 'from and to are required (YYYY-MM-DD)' });
+
+  // Expand date-only to full-day UTC
+  const fromISO = `${from}T00:00:00Z`;
+  const toISO   = `${to}T23:59:59Z`;
+
+  // Build slot list from templates
+  let slots = expandSlots(templates, fromISO, toISO);
+
+  // Filter by visit type if provided
+  if (visitTypeId) {
+    slots = slots.filter(s => !s.visitTypeIdsAllowed?.length || s.visitTypeIdsAllowed.includes(visitTypeId));
   }
-  const deptIds = String(dept).split(',');
-  const slots = expandSlots({ visitTypeId, deptIds, from, to });
-  res.json(slots);
+
+  // Filter by department(s) if provided
+  if (dept) {
+    const set = new Set(String(dept).split(',').map(s => s.trim()).filter(Boolean));
+    slots = slots.filter(s => set.has(s.departmentId));
+  }
+
+  return res.json(slots);
 });
 
-router.post('/appointments', (req, res) => {
-  const appt = createAppointment(req.body);
-  if (appt.error) return res.status(400).json(appt);
-  res.status(201).json(appt);
-});
-
-router.get('/appointments', (_req, res) => {
-  res.json(getAppointments());
-});
-
-router.post('/requests', (req, res) => {
-  const id = nanoid();
-  const item = { id, status: 'new', createdAt: dayjs().toISOString(), ...req.body };
-  requestQueue.set(id, item);
-  res.status(201).json(item);
-});
-
-router.get('/requests', (_req, res) => {
-  res.json(Array.from(requestQueue.values()));
-});
-
-router.patch('/requests/:id', (req, res) => {
-  const { id } = req.params;
-  if (!requestQueue.has(id)) return res.status(404).json({ error: 'not found' });
-  const merged = { ...requestQueue.get(id), ...req.body };
-  requestQueue.set(id, merged);
-  res.json(merged);
-});
+export { router };

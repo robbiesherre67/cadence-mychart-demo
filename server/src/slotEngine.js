@@ -1,108 +1,97 @@
-import fs from 'fs';
-import path from 'path';
+// slotEngine.js
 import dayjs from 'dayjs';
-import { nanoid } from 'nanoid';
+import utc from 'dayjs/plugin/utc.js';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 
-const dataDir = path.resolve(process.cwd(), 'data');
+dayjs.extend(utc);
+dayjs.extend(isSameOrBefore);
 
-let _appointments = []; // in-memory
+// Helpers
+const normISO = (s) => {
+  if (!s) return s;
+  // If timestamp lacks timezone, treat as UTC by appending Z
+  return /Z$|[+\-]\d{2}:\d{2}$/.test(s) ? s : `${s}Z`;
+};
 
-export function loadData() {
-  const templates = JSON.parse(fs.readFileSync(path.join(dataDir, 'templates.json'),'utf-8'));
-  const visitTypes = JSON.parse(fs.readFileSync(path.join(dataDir, 'visitTypes.json'),'utf-8'));
-  const providers = JSON.parse(fs.readFileSync(path.join(dataDir, 'providers.json'),'utf-8'));
-  const departments = JSON.parse(fs.readFileSync(path.join(dataDir, 'departments.json'),'utf-8'));
-  const decisionTree = JSON.parse(fs.readFileSync(path.join(dataDir, 'decisionTree.json'),'utf-8'));
-  return { templates, visitTypes, providers, departments, decisionTree };
-}
-
-function minutesBetween(startISO, endISO) {
-  return dayjs(endISO).diff(dayjs(startISO), 'minute');
-}
-
-function overlaps(aStart, aEnd, bStart, bEnd) {
-  return dayjs(aStart).isBefore(dayjs(bEnd)) && dayjs(bStart).isBefore(dayjs(aEnd));
-}
-
-export function expandBlocksToSlots(block, fromISO, toISO) {
-  const slots = [];
-  let cursor = dayjs(block.start);
-  const end = dayjs(block.end);
-  while (cursor.add(block.slotSizeMin, 'minute').isSameOrBefore(end)) {
-    const s = cursor.toISOString();
-    const e = cursor.add(block.slotSizeMin, 'minute').toISOString();
-    if (dayjs(s).isBetween(dayjs(fromISO), dayjs(toISO), null, '[]')) {
-      slots.push({ start: s, end: e, providerId: block.providerId, departmentId: block.departmentId, token: `${block.id}:${s}` });
+function* iterateSlots(startUtc, endUtc, minutes, capacity, base) {
+  let cursor = startUtc;
+  while (cursor.isSameOrBefore(endUtc)) {
+    const end = cursor.add(minutes, 'minute');
+    if (end.isAfter(endUtc)) break;
+    for (let i = 0; i < capacity; i++) {
+      yield {
+        start: cursor.toISOString(),
+        end: end.toISOString(),
+        departmentId: base.departmentId,
+        providerId: base.providerId,
+        visitTypeIdsAllowed: base.visitTypeIdsAllowed,
+        token: `${base.providerId}-${base.departmentId}-${cursor.unix()}-${i}`,
+      };
     }
-    cursor = cursor.add(block.slotSizeMin, 'minute');
+    cursor = end;
   }
-  return slots;
 }
 
-export function expandSlots({ visitTypeId, deptIds, from, to }) {
-  const { templates, visitTypes } = loadData();
-  const vt = visitTypes.find(v => v.id === visitTypeId);
-  if (!vt) return [];
-  const fromISO = dayjs(from).startOf('day').toISOString();
-  const toISO = dayjs(to).endOf('day').toISOString();
+// Accepts two template styles:
+// A) Absolute windows (your current file): { start, end, slotSizeMin, visitTypeIdsAllowed, capacity }
+// B) Recurring windows: { daysOfWeek:[1..5], startHour, endHour, durationMinutes, ... }
+export function expandSlots(templates, fromISO, toISO) {
+  const from = dayjs.utc(normISO(fromISO));
+  const to   = dayjs.utc(normISO(toISO));
 
-  const candidateBlocks = templates.filter(t =>
-    deptIds.includes(t.departmentId) &&
-    t.visitTypeIdsAllowed.includes(visitTypeId)
-  );
+  const out = [];
 
-  // Expand to 15-min atoms, then stitch to duration
-  const atoms = candidateBlocks.flatMap(b => expandBlocksToSlots(b, fromISO, toISO));
+  for (const t of templates) {
+    const base = {
+      providerId: t.providerId,
+      departmentId: t.departmentId,
+      visitTypeIdsAllowed: t.visitTypeIdsAllowed || [],
+    };
 
-  // Remove occupied atoms
-  const occupied = _appointments.flatMap(a => {
-    return [{ start: a.start, end: a.end, providerId: a.providerId, departmentId: a.departmentId }];
-  });
-
-  const free = atoms.filter(sl => !occupied.some(o => overlaps(sl.start, sl.end, o.start, o.end)));
-
-  // Coalesce atoms into visitType duration
-  const need = vt.durationMin;
-  const grouped = [];
-  for (let i=0; i<free.length; i++) {
-    const start = dayjs(free[i].start);
-    let length = 15;
-    let j = i;
-    while (j+1 < free.length &&
-           free[j].providerId === free[j+1].providerId &&
-           free[j].departmentId === free[j+1].departmentId &&
-           dayjs(free[j+1].start).diff(dayjs(free[j].start), 'minute') === 15) {
-      length += 15;
-      j++;
-      if (length >= need) break;
+    // Absolute template
+    if (t.start && t.end && t.slotSizeMin) {
+      const winStart = dayjs.utc(normISO(t.start));
+      const winEnd   = dayjs.utc(normISO(t.end));
+      // intersect with requested range
+      const start = winStart.isAfter(from) ? winStart : from;
+      const end   = winEnd.isBefore(to) ? winEnd : to;
+      if (start.isSameOrBefore(end)) {
+        for (const slot of iterateSlots(start, end, t.slotSizeMin, t.capacity || 1, base)) {
+          out.push(slot);
+        }
+      }
+      continue;
     }
-    if (length >= need) {
-      grouped.push({
-        start: start.toISOString(),
-        end: start.add(need, 'minute').toISOString(),
-        providerId: free[i].providerId,
-        departmentId: free[i].departmentId,
-        token: free[i].token
-      });
+
+    // Recurring template
+    if (t.daysOfWeek && t.startHour != null && t.endHour != null && t.durationMinutes) {
+      // Iterate each day in [from, to]
+      let cursor = from.startOf('day');
+      const last = to.startOf('day');
+      while (cursor.isSameOrBefore(last)) {
+        const dow = cursor.day(); // 0..6 (0=Sun)
+        // Expect daysOfWeek to be 1..5 for Mon..Fri etc.
+        if (t.daysOfWeek.includes(dow)) {
+          const dayStart = cursor.hour(t.startHour).minute(0).second(0).millisecond(0);
+          const dayEnd   = cursor.hour(t.endHour).minute(0).second(0).millisecond(0);
+          for (const slot of iterateSlots(dayStart, dayEnd, t.durationMinutes, t.capacity || 1, base)) {
+            // Only include if slot fully inside the overall [from, to]
+            const s = dayjs.utc(slot.start);
+            const e = dayjs.utc(slot.end);
+            if (!s.isBefore(from) && !e.isAfter(to)) {
+              out.push(slot);
+            }
+          }
+        }
+        cursor = cursor.add(1, 'day');
+      }
+      continue;
     }
-  }
-  return grouped;
-}
 
-export function createAppointment(body) {
-  const { patientId, providerId, departmentId, visitTypeId, start, end, source, linkedOrderId } = body || {};
-  if (!patientId || !providerId || !departmentId || !visitTypeId || !start || !end) {
-    return { error: 'Missing required fields' };
+    // Unknown template shape: skip silently
   }
-  // very light conflict check
-  if (_appointments.some(a => a.providerId === providerId && overlaps(start, end, a.start, a.end))) {
-    return { error: 'Slot already taken' };
-  }
-  const appt = { id: nanoid(), patientId, providerId, departmentId, visitTypeId, start, end, status: 'booked', source: source || 'staff', linkedOrderId };
-  _appointments.push(appt);
-  return appt;
-}
 
-export function getAppointments() {
-  return _appointments;
+  // Sort by start ascending
+  out.sort((a, b) => dayjs.utc(a.start).valueOf() - dayjs.utc(b.start).valueOf());
+  return out;
 }
