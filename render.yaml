@@ -7,10 +7,10 @@ services:
     rootDir: server
     buildCommand: |
       cd ../client
-      npm ci
+      npm install
       npm run build
       cd ../server
-      npm ci
+      npm install
     startCommand: node src/index.js
     envVars:
       - key: NODE_VERSION

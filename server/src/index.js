@@ -1,25 +1,30 @@
-import express from 'express';
-import cors from 'cors';
-import { router as api } from './routes.js';
-import { router as fhir } from './mockFhir.js';
+import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import cors from 'cors'
+import { router as api } from './routes.js'
+import { router as fhir } from './mockFhir.js'
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-app.get('/', (_req, res) => res.json({ ok: true, name: 'cadence-mychart-server' }));
-app.use('/api', api);
-app.use('/fhir', fhir);
+const app = express()
+app.use(cors())
+app.use(express.json())
 
-// SMART configuration (very minimal placeholder)
-app.get('/.well-known/smart-configuration', (_req, res) => {
-  res.json({
-    authorization_endpoint: 'http://localhost:4000/oauth/authorize',
-    token_endpoint: 'http://localhost:4000/oauth/token',
-    capabilities: ['launch-standalone', 'context-ehr-patient', 'permission-patient'],
-    scopes_supported: ['patient/Appointment.rs', 'patient/ServiceRequest.r']
-  });
-});
+const clientDist = path.join(__dirname, '../../client/dist')
+app.use(express.static(clientDist))
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
+app.use('/api', api)
+app.use('/fhir', fhir)
+
+app.get('/health', (_req, res) => res.json({ ok: true }))
+
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'))
+})
+
+const PORT = process.env.PORT || 10000
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`)
+})

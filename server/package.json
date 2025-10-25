@@ -1,15 +1,14 @@
 {
   "name": "cadence-mychart-server",
-  "version": "0.1.0",
+  "private": true,
   "type": "module",
-  "main": "src/index.js",
   "scripts": {
-    "dev": "node src/index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dayjs": "^1.11.12",
     "express": "^4.19.2",
-    "nanoid": "^5.0.7",
-    "dayjs": "^1.11.10"
+    "nanoid": "^5.0.7"
   }
 }
