@@ -1,9 +1,25 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
+/**
+ * Props:
+ * - outcome: { visitTypeIds: string[] }
+ * - slot: { start:string, end:string, providerId:string, departmentId:string, token?:string }
+ * - onBooked?: (id:string) => void
+ * - onCancel?: () => void
+ * - onStartOver?: () => void
+ */
 export default function Checkout({ outcome, slot, onBooked, onCancel, onStartOver }) {
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
   const [bookedId, setBookedId] = useState(null)
+  const panelRef = useRef(null)
+
+  // Keep the panel in view on mount and whenever status changes
+  useEffect(() => {
+    if (panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [status])
 
   if (!outcome || !slot) return null
 
@@ -65,10 +81,12 @@ export default function Checkout({ outcome, slot, onBooked, onCancel, onStartOve
     setStatus(null)
     setBookedId(null)
     onStartOver?.()
+    // keep user at the top after reset
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
   }
 
   return (
-    <div style={{ marginTop: 20, padding: 16, border: '1px solid #ddd', borderRadius: 12 }}>
+    <div ref={panelRef} style={{ marginTop: 20, padding: 16, border: '1px solid #ddd', borderRadius: 12 }}>
       <h2>3) Confirm &amp; Book</h2>
 
       <p>Visit Type: <strong>{outcome.visitTypeIds?.[0] || '—'}</strong></p>
@@ -80,21 +98,25 @@ export default function Checkout({ outcome, slot, onBooked, onCancel, onStartOve
       </p>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button onClick={book} disabled={loading || !!bookedId}>
+        <button type="button" onClick={book} disabled={loading || !!bookedId}>
           {loading && !bookedId ? 'Booking…' : bookedId ? 'Booked' : 'Book'}
         </button>
 
-        <button onClick={cancelBooking} disabled={loading || !bookedId}>
+        <button type="button" onClick={cancelBooking} disabled={loading || !bookedId}>
           {loading && bookedId ? 'Canceling…' : 'Cancel Booking'}
         </button>
 
         <button type="button" onClick={startOver} disabled={loading}>
           Start Over
         </button>
-
       </div>
 
-      {status && <p style={{ marginTop: 10 }}>{status}</p>}
+      {/* Accessible status area */}
+      {status && (
+        <p style={{ marginTop: 10 }} aria-live="polite" aria-atomic="true">
+          {status}
+        </p>
+      )}
     </div>
   )
 }

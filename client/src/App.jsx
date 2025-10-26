@@ -53,13 +53,6 @@ export default function App() {
           onStartOver={resetAll}   // <-- critical: fully resets the flow
         />
       )}
-
-      {/* Global Start Over (optional safety) */}
-      {(outcome || selection || bookedId) && (
-        <div style={{ marginTop: 16 }}>
-          <button type="button" onClick={resetAll}>Start Over</button>
-        </div>
-      )}
     </div>
   )
 }
