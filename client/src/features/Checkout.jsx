@@ -1,13 +1,5 @@
 import React, { useState } from 'react'
 
-/**
- * Props:
- * - outcome: { visitTypeIds: string[] }
- * - slot: { start:string, end:string, providerId:string, departmentId:string, token?:string }
- * - onBooked?: (id:string) => void
- * - onCancel?: () => void
- * - onStartOver?: () => void
- */
 export default function Checkout({ outcome, slot, onBooked, onCancel, onStartOver }) {
   const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -96,9 +88,10 @@ export default function Checkout({ outcome, slot, onBooked, onCancel, onStartOve
           {loading && bookedId ? 'Canceling…' : 'Cancel Booking'}
         </button>
 
-        <button onClick={startOver} disabled={loading}>
+        <button type="button" onClick={startOver} disabled={loading}>
           Start Over
         </button>
+
       </div>
 
       {status && <p style={{ marginTop: 10 }}>{status}</p>}
